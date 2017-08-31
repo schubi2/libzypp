@@ -62,6 +62,9 @@ struct RpmRemoveReport : public callback::ReportBase
   /** Finish operation in case of fail, report fail exception */
   virtual void finish( Exception & excpt_r )
   {}
+  /** \copydoc zypp::target::InstallResolvableReport::scriptOutput */
+  virtual void scriptOutput( const std::string & line_r, bool nonZeroReturn_r = false )
+  {}
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -99,6 +102,10 @@ struct RpmInstallReport : public callback::ReportBase
 
   /** Finish operation in case of fail, report fail exception */
   virtual void finish( Exception & excpt_r )
+  {}
+
+  /** \copydoc zypp::target::InstallResolvableReport::scriptOutput */
+  virtual void scriptOutput( const std::string & line_r, bool nonZeroReturn_r = false )
   {}
 };
 

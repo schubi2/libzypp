@@ -64,6 +64,9 @@ namespace zypp
 
         /** Finish operatin in case of fail, report fail exception */
         virtual void finish( Exception & excpt_r );
+
+	/** \copydoc zypp::target::InstallResolvableReport::scriptOutput */
+	virtual void scriptOutput( const std::string & line_r, bool nonZeroReturn_r = false );
     };
 
     class RpmRemovePackageReceiver
@@ -108,6 +111,9 @@ namespace zypp
 
         /** Finish operatin in case of fail, report fail exception */
         virtual void finish( Exception & excpt_r );
+
+	/** \copydoc zypp::target::InstallResolvableReport::scriptOutput */
+	virtual void scriptOutput( const std::string & line_r, bool nonZeroReturn_r = false );
     };
 
     /////////////////////////////////////////////////////////////////

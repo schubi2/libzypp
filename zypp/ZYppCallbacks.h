@@ -558,6 +558,20 @@ namespace zypp
 	  , const std::string &/*reason*/
 	  , RpmLevel /*level*/
         ) {}
+
+        ///////////////////////////////////////////////////////////////////
+	// Non virtual generic reports based on UserData:
+
+	/** One or more lines of rpm %script output
+	 * bsc#1047233: Forward detected non-zero exit codes of scripts
+	 */
+	void scriptOutput( const std::string & line_r, bool nonZeroReturn_r = false )
+	{
+	  UserData userData( "script", "output" );
+	  userData.set( "line",			line_r );
+	  userData.set( "nonZeroReturn",	nonZeroReturn_r );
+	  report( userData );
+	}
       };
 
       // progress for removing a resolvable
@@ -594,6 +608,20 @@ namespace zypp
           , Error /*error*/
 	  , const std::string &/*reason*/
         ) {}
+
+        ///////////////////////////////////////////////////////////////////
+	// Non virtual generic reports based on UserData:
+
+	/** One or more lines of rpm %script output
+	 * bsc#1047233: Forward detected non-zero exit codes of scripts
+	 */
+	void scriptOutput( const std::string & line_r, bool nonZeroReturn_r = false )
+	{
+	  UserData userData( "script", "output" );
+	  userData.set( "line",			line_r );
+	  userData.set( "nonZeroReturn",	nonZeroReturn_r );
+	  report( userData );
+	}
       };
 
       // progress for rebuilding the database

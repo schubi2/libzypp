@@ -104,6 +104,8 @@ namespace zypp
 	    _level = level_r;
 	}
 
+	void RpmInstallPackageReceiver::scriptOutput( const std::string & line_r, bool nonZeroReturn_r )
+	{ _report->scriptOutput( line_r, nonZeroReturn_r ); }
 
 	/////////////////////////////////////////////////////////////////
 	///  RpmRemovePackageReceiver
@@ -184,6 +186,9 @@ namespace zypp
 	{
 	    _report->finish( _resolvable, rpm::RemoveResolvableReport::INVALID, std::string() );
 	}
+
+	void RpmRemovePackageReceiver::scriptOutput( const std::string & line_r, bool nonZeroReturn_r )
+	{ _report->scriptOutput( line_r, nonZeroReturn_r ); }
 
     /////////////////////////////////////////////////////////////////
   } // namespace target

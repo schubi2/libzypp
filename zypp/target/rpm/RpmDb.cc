@@ -2033,7 +2033,10 @@ void RpmDb::doInstallPackage( const Pathname & filename, RpmInstFlags flags, cal
       report->progress( percent );
     }
     else
+    {
+      report->scriptOutput( line );
       rpmmsg += line+'\n';
+    }
 
     if ( line.substr(0,8) == "warning:" )
     {
@@ -2201,6 +2204,7 @@ void RpmDb::doRemovePackage( const std::string & name_r, RpmInstFlags flags, cal
       ++linecnt;
     else
       continue;
+    report->scriptOutput( line );
     rpmmsg += line+'\n';
   }
   if ( linecnt > MAXRPMMESSAGELINES )
@@ -2300,7 +2304,7 @@ bool RpmDb::backupPackage(const std::string& packageName)
     do
     {
       backupFilename = _root + _backuppath
-                       + str::form("%s-%d-%d.tar.gz",packageName.c_str(), date, num);
+                       + str::form("%s-%d-%d.tar.gz",pqackageName.c_str(), date, num);
 
     }
     while ( PathInfo(backupFilename).isExist() && num++ < 1000);
