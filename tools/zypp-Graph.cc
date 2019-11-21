@@ -5,6 +5,7 @@
 #include <boost/program_options.hpp>
 
 #include <iostream>
+#include <functional>
 #include <fstream>
 #include <stack>
 
@@ -175,51 +176,59 @@ void loadSystem( const getopts::variables_map & opts_r )
 // the Graph
 namespace depgraph
 {
+  class Node;
   using NodeId = std::string;
+  using NodeSet = std::unordered_set<Node>;
 
   ///////////////////////////////////////////////////////////////////
   /// \brief Node is a set of Solvables.
   /// It's "dependencies" is the union of it's Solvables dependencies.
-  struct Node
+  class Node
   {
-    Node( NodeId id_r )
-    : _id { std::move(id_r) }
+    struct Impl
+    {
+      Impl( NodeId && id_r )
+      : _id { std::move(id_r) }
+      {}
+
+      NodeId _id;	///< identifyer
+      NodeSet _out;	///< set of outgoing edges to ...
+      NodeSet _in;	///< set of incoming edges from ...
+    };
+
+  public:
+    Node( NodeId && id_r )
+    : _pimpl( new Impl( std::move(id_r) ) )
     {}
 
     const NodeId & id() const
-    { return _id; }
+    { return _pimpl->_id; }
+
+    const std::string & name() const
+    { return _pimpl->_id; }
+
+    const NodeSet & out() const
+    { return _pimpl->_out; }
+
+    const NodeSet & in() const
+    { return _pimpl->_in; }
 
   private:
-    NodeId _id;
+    friend class Graph;
+    RW_pointer<Impl> _pimpl;
   };
-  ///////////////////////////////////////////////////////////////////
-  /// \brief Vertex is a dependency between 2 Nodes
-  ///
-  struct Vertex
-  {
-    Vertex( Node from_r, Node to_r )
-    : _from { std::move(from_r) }
-    , _to { std::move(to_r) }
-    {}
 
-  private:
-    Node _from;
-    Node _to;
-  };
+  /** \relates Node */
+  inline bool operator==( const Node & lhs, const Node & rhs )
+  { return lhs.id() == rhs.id(); }
+
 } // namespace depgraph
 namespace std
 {
   template <> struct hash<depgraph::Node>
   {
     size_t operator()( const depgraph::Node & el ) const
-    { return std::hash<depgraph::NodeId>( el.id() ); }
-  };
-  template <> struct hash<depgraph::Vertex>
-  {
-    size_t operator()( const depgraph::Vertex & el ) const
-    {
-
-    }
+    { return std::hash<depgraph::NodeId>()( el.id() ); }
   };
 } //namespace std
 namespace depgraph
@@ -228,22 +237,40 @@ namespace depgraph
   struct Graph
   {
   public:
+    const NodeSet & nodes() const
+    { return _nodes; }
+
     Graph & addNode( sat::Solvable solv_r )
     {
       _nodes.insert( Node( nodeId( solv_r ) ) );
       return *this;
     }
 
-  public:
+    Graph & addEdge( const sat::Solvable & from_r, const sat::Solvable & to_r,
+		     const Capability & cap_r = Capability(), const Dep & dep_r = Dep::PROVIDES )
+    {
+      _nodes.insert( Node( nodeId( solv_r ) ) );
+      return *this;
+    }
+
+
+  private:
     /** Maps Solvable to a Node */
-    NodeId nodeId( sat::Solvable solv_r ) const
+    NodeId nodeId( const sat::Solvable & solv_r ) const
     { return solv_r.ident().asString();
       return solv_r.asString(); }
 
   private:
-    std::unordered_set<Node>   _nodes;
-    std::unordered_set<Vertex> _vertices;
+    NodeSet _nodes;
   };
+
+  /** \relates Graph */
+  std::ostream & operator<<( std::ostream & str, const Graph & obj )
+  {
+    str << "Graph {";
+    str << "} [ nodes:" << obj.nodes().size() << ", edges:" << " ]";
+    return str;
+  }
 
 } // namespace depgraph
 
@@ -272,6 +299,8 @@ int main( int argc, const char * argv[] )
     for ( auto el : q )
       g.addNode( el );
   }
+
+  MSG << g << endl;
 
   return 0;
 }
