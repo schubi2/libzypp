@@ -33,6 +33,7 @@ extern "C"
 #include "zypp/base/String.h"
 #include "zypp/base/Gettext.h"
 #include "zypp/base/LocaleGuard.h"
+#include "zypp/base/DtorReset.h"
 
 #include "zypp/Date.h"
 #include "zypp/Pathname.h"
@@ -67,13 +68,15 @@ namespace zypp
   }
   namespace env
   {
+    bool rpmDebugThis = false;
     inline bool ZYPP_RPM_DEBUG()
     {
       static bool val = [](){
 	const char * env = getenv("ZYPP_RPM_DEBUG");
+        DBG << "Check env:ZYPP_RPM_DEBUG" << endl;
 	return( env && str::strToBool( env, true ) );
       }();
-      return val;
+      return val || rpmDebugThis;
     }
   } // namespace envnamespace target
 namespace target
@@ -1963,6 +1966,10 @@ void RpmDb::doInstallPackage( const Pathname & filename, RpmInstFlags flags, cal
 {
   FAILIFNOTINITIALIZED;
   HistoryLog historylog;
+
+  DtorReset x( env::rpmDebugThis, false );
+  if ( str::startsWith( filename.basename(), "glibc-2" ) )
+    env::rpmDebugThis = true;
 
   MIL << "RpmDb::installPackage(" << filename << "," << flags << ")" << endl;
 
